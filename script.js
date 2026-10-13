@@ -224,7 +224,10 @@ addEventListener("resize",setBar);document.fonts&&document.fonts.ready.then(setB
 addEventListener("scroll",()=>$("#nav").classList.toggle("solid",scrollY>40),{passive:true});
 $("#burger").addEventListener("click",()=>$("#mm").classList.toggle("open"));
 
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+// Reveal progressively when supported; default to visible if observer is unavailable.
+const io=typeof IntersectionObserver!=="undefined"
+ ? new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:0,rootMargin:"0px 0px 120px 0px"})
+ : {observe(el){el.classList.add("in")},unobserve(){},disconnect(){}};
 
 let MK="",OPEN=-1,LIM=20,STK=null;
 const HEAVY=/^(Scania|Volvo|MAN|JCB|Cummins|Iveco|Fuso|Other)$/;

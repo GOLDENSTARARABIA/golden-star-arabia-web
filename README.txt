@@ -18,6 +18,19 @@ HOW TO PUBLISH
   Open index.html in a browser to preview it on your computer.
   Everything is included, fonts too. No internet connection is needed to run it.
 
+GITHUB PAGES
+  1. Put the files of this folder (index.html, styles.css, script.js, fonts.css,
+     the assets and fonts folders) in the ROOT of the repository, not inside
+     another folder. Keep the .nojekyll file.
+  2. Repository > Settings > Pages > Build and deployment: Source "Deploy from a
+     branch", branch main, folder / (root), then Save.
+  3. Wait 1 to 3 minutes. The live address is shown at the top of that page
+     (https://USERNAME.github.io/REPOSITORY/). Share that link, not the
+     github.com link.
+  4. If it does not open on another computer: open the link in a private window
+     and press Ctrl+Shift+R. If it is blank, press F12, open Console and send a
+     screenshot.
+
 HOW TO EDIT
   Open script.js. At the top:
     SITE  phone, email, director photo, hero video, and the product list

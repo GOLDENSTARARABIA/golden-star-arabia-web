@@ -620,17 +620,3 @@ footer .fbot{display:flex;align-items:center;justify-content:space-between;gap:2
 .fbr b::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold)}
 footer .fbr+.fbot{margin-top:0}
 @media(max-width:820px){.fbr{gap:10px}.fbr span{flex:1 1 100%;margin:0 0 2px}.fbr b{padding:7px 13px;font-size:13px}}
-
-/* Desktop visibility reliability fix (2026-10-13).
-   Avoid hiding whole sections behind clip-path while waiting for scroll-trigger
-   callbacks. Mobile rules above remain unchanged. */
-@media (min-width:821px){
-  #app .rv, #app .rv.in, #foot .rv, #foot .rv.in{
-    clip-path:none!important;
-    -webkit-clip-path:none!important;
-    opacity:1!important;
-    transform:none!important;
-  }
-  #app .chalk .hw{opacity:1;transform:none}
-  #app .chalk .arr path,#app .chalk .ul path{stroke-dashoffset:0}
-}

@@ -635,3 +635,24 @@ footer .fbr+.fbot{margin-top:0}
 @media (prefers-reduced-motion:reduce) {
   .hl {opacity:1 !important; transform:none !important; animation:none !important;}
 }
+
+
+/* GSA v5 — progressive desktop scroll text reveal.
+   Safe default: all content remains visible if JS/IntersectionObserver fails.
+   The `.in` class supplies animation only; it never gates visibility. */
+@keyframes gsaTextScrollIn {
+  from { translate: 0 22px; filter: blur(3px); }
+  to   { translate: 0 0; filter: blur(0); }
+}
+@media (min-width:821px) and (prefers-reduced-motion:no-preference) {
+  /* Element itself contains text, or is a text-heavy block. */
+  .rv.in:is(h1,h2,h3,h4,p,.lead,.pill,.eyebrow,.sub,.ct,.apr,.story,.stats,.item,.step,.chips,.band,.cinfo,.fgrid),
+  .rv.in:not(:has(.rv)) > :is(h2,h3,h4,p,.lead,.eyebrow,.sub) {
+    animation: gsaTextScrollIn .85s cubic-bezier(.2,.65,.2,1) both;
+  }
+  /* Text should stay readable when the animation is not running.
+     No default opacity:0 / clipped state is introduced here. */
+}
+@media (prefers-reduced-motion:reduce) {
+  .rv.in {animation:none!important;translate:none!important;filter:none!important}
+}

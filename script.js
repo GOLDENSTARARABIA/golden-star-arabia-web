@@ -224,56 +224,7 @@ addEventListener("resize",setBar);document.fonts&&document.fonts.ready.then(setB
 addEventListener("scroll",()=>$("#nav").classList.toggle("solid",scrollY>40),{passive:true});
 $("#burger").addEventListener("click",()=>$("#mm").classList.toggle("open"));
 
-const io=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:0,rootMargin:"0px 0px -8% 0px"}):{observe(e){e.classList.add("in")},unobserve(){},disconnect(){}};
-
-/* GSA v6: On-scroll, individual element motion.
-   The site is readable before JS or IO runs. Scroll motion enhances it only.
-   The observer is separate from .rv reveal, which protects desktop visibility. */
-let gsMotionObserver=null;
-function gsInstallScrollMotion(){
-  if(gsMotionObserver){gsMotionObserver.disconnect();gsMotionObserver=null;}
-  if(!window.IntersectionObserver ||
-     !window.matchMedia('(min-width:821px) and (prefers-reduced-motion:no-preference)').matches) return;
-  const root=document.getElementById('app');if(!root)return;
-  const selector=[
-    'section h2','section h3','section h4',
-    'section .pill','section .eyebrow','section .lead',
-    'section .role','section .sub','section .ct',
-    'section .say-s','section .stats b','section .stats small',
-    'section .item p','section .step p','section .story p',
-    'section .dirtxt p','section .vmb p',
-    'section .vmb h2','section .apr p',
-    'section .card','section .tile','section .banner',
-    'section .thumb','section .photo','section .hw',
-    'section .legend .lg-i','section .traits .tr',
-    'section .cinfo p','section .chips','section .meet',
-    'section .art','section .head2','section .tabs'
-  ].join(',');
-  const all=[...root.querySelectorAll(selector)].filter(el=>
-    !el.closest('#home') && !el.closest('[hidden]') &&
-    !el.closest('.inv #res') && el.getBoundingClientRect().width>0);
-  gsMotionObserver=new IntersectionObserver(entries=>{
-    for(const entry of entries){
-      if(!entry.isIntersecting)continue;
-      const el=entry.target;
-      /* No opacity:0 rule applied beforehand. A missed trigger cannot blank content. */
-      if(!el.classList.contains('gs-motion-enter')){
-        el.classList.add('gs-motion-enter');
-      }
-      gsMotionObserver.unobserve(el);
-    }
-  },{threshold:0.015,rootMargin:'0px 0px -9% 0px'});
-  const rows=new Map();
-  for(const el of all){
-    /* Sequence siblings gently; never create long waits while the user scrolls. */
-    const group=el.closest('section')||root;
-    const row=Math.round(el.getBoundingClientRect().top/150);
-    const key=(group.id||[...root.children].indexOf(group))+'_'+row;
-    const idx=rows.get(key)||0; rows.set(key,idx+1);
-    el.style.setProperty('--gs-delay',Math.min(idx,3)*115+'ms');
-    gsMotionObserver.observe(el);
-  }
-}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
 
 let MK="",OPEN=-1,LIM=20,STK=null;
 const HEAVY=/^(Scania|Volvo|MAN|JCB|Cummins|Iveco|Fuso|Other)$/;
@@ -383,7 +334,7 @@ const route=()=>{const m=location.hash.replace(/^#\/?/,"").split("/")[0];return 
 function show(r){const t=T();$("#app").innerHTML=P[r](t);$("#app").querySelectorAll("img").forEach(i=>{i.decoding="async";if(!i.closest("#home,.page-top"))i.loading="lazy"});PRE=r==="contact"?"":PRE;document.title=(r==="home"?"":t.nav[r]+" | ")+t.brand;
  scrollTo({top:0,left:0,behavior:"instant"});document.querySelectorAll(".lg a,.mm a").forEach(a=>a.classList.toggle("on",a.dataset.r===r));setBar();
  if(r==="radiators"){MK="";OPEN=-1;LIM=20;renderInv()}if(r==="home"){fx();startVideo()}
- io.disconnect();document.querySelectorAll(".rv,.rule").forEach(el=>io.observe(el));document.querySelectorAll("#fline,#femb").forEach(x=>{x.classList.remove("in");io.observe(x)});gsInstallScrollMotion()}
+ io.disconnect();document.querySelectorAll(".rv,.rule").forEach(el=>io.observe(el));document.querySelectorAll("#fline,#femb").forEach(x=>{x.classList.remove("in");io.observe(x)})}
 let VURL="";
 document.addEventListener("pointerdown",()=>{const v=$("#hv");if(v&&!v.dataset.still&&v.src&&v.paused){const q=v.play();q&&q.catch&&q.catch(()=>{})}},{passive:true});
 function startVideo(){const v=$("#hv");if(!v)return;const cn=navigator.connection;if((cn&&cn.saveData)||matchMedia("(prefers-reduced-motion:reduce)").matches){v.dataset.still="1";return}
@@ -422,7 +373,7 @@ function go(){const r=route();if(r===cur&&!T1){syncModal();return}$("#mm").class
  const c=$("#curtain");c.className="in";
  T1=setTimeout(()=>{T1=0;cur=r;show(r);syncModal();c.className="out"},650);T2=setTimeout(()=>{c.className=""},1400)}
 try{history.scrollRestoration="manual"}catch(e){}
-try{applyLang();addEventListener("hashchange",go);go();addEventListener("load",setBar)}catch(err){if(window.console)console.error(err);window.__gsaFail&&window.__gsaFail()}
+applyLang();addEventListener("hashchange",go);go();addEventListener("load",setBar);
 
 /* intro sequence */
 (function(){const sp=$("#splash"),quick=matchMedia("(prefers-reduced-motion:reduce)").matches;let seen=false;
@@ -432,6 +383,3 @@ try{applyLang();addEventListener("hashchange",go);go();addEventListener("load",s
  setTimeout(()=>document.body.classList.add("ready"),quick?200:2500);
  setTimeout(()=>sp.classList.add("out"),quick?100:2400);
  setTimeout(()=>sp.remove(),quick?600:3800)})();
-
-/* Always release the intro animation lock, even if a browser throttles the animation. */
-setTimeout(()=>{if(!document.body.classList.contains('ready'))document.body.classList.add('ready')},4500);

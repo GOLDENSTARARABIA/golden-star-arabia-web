@@ -226,6 +226,55 @@ $("#burger").addEventListener("click",()=>$("#mm").classList.toggle("open"));
 
 const io=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:0,rootMargin:"0px 0px -8% 0px"}):{observe(e){e.classList.add("in")},unobserve(){},disconnect(){}};
 
+/* GSA v6: On-scroll, individual element motion.
+   The site is readable before JS or IO runs. Scroll motion enhances it only.
+   The observer is separate from .rv reveal, which protects desktop visibility. */
+let gsMotionObserver=null;
+function gsInstallScrollMotion(){
+  if(gsMotionObserver){gsMotionObserver.disconnect();gsMotionObserver=null;}
+  if(!window.IntersectionObserver ||
+     !window.matchMedia('(min-width:821px) and (prefers-reduced-motion:no-preference)').matches) return;
+  const root=document.getElementById('app');if(!root)return;
+  const selector=[
+    'section h2','section h3','section h4',
+    'section .pill','section .eyebrow','section .lead',
+    'section .role','section .sub','section .ct',
+    'section .say-s','section .stats b','section .stats small',
+    'section .item p','section .step p','section .story p',
+    'section .dirtxt p','section .vmb p',
+    'section .vmb h2','section .apr p',
+    'section .card','section .tile','section .banner',
+    'section .thumb','section .photo','section .hw',
+    'section .legend .lg-i','section .traits .tr',
+    'section .cinfo p','section .chips','section .meet',
+    'section .art','section .head2','section .tabs'
+  ].join(',');
+  const all=[...root.querySelectorAll(selector)].filter(el=>
+    !el.closest('#home') && !el.closest('[hidden]') &&
+    !el.closest('.inv #res') && el.getBoundingClientRect().width>0);
+  gsMotionObserver=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      if(!entry.isIntersecting)continue;
+      const el=entry.target;
+      /* No opacity:0 rule applied beforehand. A missed trigger cannot blank content. */
+      if(!el.classList.contains('gs-motion-enter')){
+        el.classList.add('gs-motion-enter');
+      }
+      gsMotionObserver.unobserve(el);
+    }
+  },{threshold:0.015,rootMargin:'0px 0px -9% 0px'});
+  const rows=new Map();
+  for(const el of all){
+    /* Sequence siblings gently; never create long waits while the user scrolls. */
+    const group=el.closest('section')||root;
+    const row=Math.round(el.getBoundingClientRect().top/150);
+    const key=(group.id||[...root.children].indexOf(group))+'_'+row;
+    const idx=rows.get(key)||0; rows.set(key,idx+1);
+    el.style.setProperty('--gs-delay',Math.min(idx,3)*115+'ms');
+    gsMotionObserver.observe(el);
+  }
+}
+
 let MK="",OPEN=-1,LIM=20,STK=null;
 const HEAVY=/^(Scania|Volvo|MAN|JCB|Cummins|Iveco|Fuso|Other)$/;
 function stk(){if(STK)return STK;STK=SITE.stock.map((r,i)=>{const y=(r[2]||"").match(/\d{4}/g),a=y?+y[0]:0,b=y?(/\+/.test(r[2])?2035:+y[y.length-1]):0,tot=r[5]+r[6]+r[7];
@@ -334,7 +383,7 @@ const route=()=>{const m=location.hash.replace(/^#\/?/,"").split("/")[0];return 
 function show(r){const t=T();$("#app").innerHTML=P[r](t);$("#app").querySelectorAll("img").forEach(i=>{i.decoding="async";if(!i.closest("#home,.page-top"))i.loading="lazy"});PRE=r==="contact"?"":PRE;document.title=(r==="home"?"":t.nav[r]+" | ")+t.brand;
  scrollTo({top:0,left:0,behavior:"instant"});document.querySelectorAll(".lg a,.mm a").forEach(a=>a.classList.toggle("on",a.dataset.r===r));setBar();
  if(r==="radiators"){MK="";OPEN=-1;LIM=20;renderInv()}if(r==="home"){fx();startVideo()}
- io.disconnect();document.querySelectorAll(".rv,.rule").forEach(el=>io.observe(el));document.querySelectorAll("#fline,#femb").forEach(x=>{x.classList.remove("in");io.observe(x)})}
+ io.disconnect();document.querySelectorAll(".rv,.rule").forEach(el=>io.observe(el));document.querySelectorAll("#fline,#femb").forEach(x=>{x.classList.remove("in");io.observe(x)});gsInstallScrollMotion()}
 let VURL="";
 document.addEventListener("pointerdown",()=>{const v=$("#hv");if(v&&!v.dataset.still&&v.src&&v.paused){const q=v.play();q&&q.catch&&q.catch(()=>{})}},{passive:true});
 function startVideo(){const v=$("#hv");if(!v)return;const cn=navigator.connection;if((cn&&cn.saveData)||matchMedia("(prefers-reduced-motion:reduce)").matches){v.dataset.still="1";return}

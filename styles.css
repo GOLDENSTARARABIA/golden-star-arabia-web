@@ -637,22 +637,25 @@ footer .fbr+.fbot{margin-top:0}
 }
 
 
-/* GSA v5 — progressive desktop scroll text reveal.
-   Safe default: all content remains visible if JS/IntersectionObserver fails.
-   The `.in` class supplies animation only; it never gates visibility. */
-@keyframes gsaTextScrollIn {
-  from { translate: 0 22px; filter: blur(3px); }
-  to   { translate: 0 0; filter: blur(0); }
+/* GSA v6 — cinematic, progressive on-scroll motion.
+   Visibility is never gated: if motion does not run, the content stays visible.
+   The .gs-motion-enter class is assigned ONLY when a specific element intersects.
+   Natural DOM typography and the original hero animation are preserved. */
+@keyframes gsaCinematicReveal {
+  0% { opacity:.12; translate: 0 36px; filter:blur(4px); }
+  56% { opacity:.88; filter:blur(.7px); }
+  100% { opacity:1; translate:0 0; filter:blur(0); }
 }
 @media (min-width:821px) and (prefers-reduced-motion:no-preference) {
-  /* Element itself contains text, or is a text-heavy block. */
-  .rv.in:is(h1,h2,h3,h4,p,.lead,.pill,.eyebrow,.sub,.ct,.apr,.story,.stats,.item,.step,.chips,.band,.cinfo,.fgrid),
-  .rv.in:not(:has(.rv)) > :is(h2,h3,h4,p,.lead,.eyebrow,.sub) {
-    animation: gsaTextScrollIn .85s cubic-bezier(.2,.65,.2,1) both;
+  /* Unlike .rv, these are genuine individual on-scroll text/image targets. */
+  .gs-motion-enter {
+    animation: gsaCinematicReveal 1.55s cubic-bezier(.18,.65,.18,1) both;
+    animation-delay:var(--gs-delay,0ms);
+    will-change: auto;
   }
-  /* Text should stay readable when the animation is not running.
-     No default opacity:0 / clipped state is introduced here. */
+  /* Keep the pre-existing home word-by-word sequence intact. */
+  #home .hl {animation-name:rise;}
 }
 @media (prefers-reduced-motion:reduce) {
-  .rv.in {animation:none!important;translate:none!important;filter:none!important}
+  .gs-motion-enter {animation:none!important; opacity:1!important;translate:none!important;filter:none!important;}
 }

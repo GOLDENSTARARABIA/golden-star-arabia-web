@@ -224,7 +224,7 @@ addEventListener("resize",setBar);document.fonts&&document.fonts.ready.then(setB
 addEventListener("scroll",()=>$("#nav").classList.toggle("solid",scrollY>40),{passive:true});
 $("#burger").addEventListener("click",()=>$("#mm").classList.toggle("open"));
 
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+const io=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:0,rootMargin:"0px 0px -8% 0px"}):{observe(e){e.classList.add("in")},unobserve(){},disconnect(){}};
 
 let MK="",OPEN=-1,LIM=20,STK=null;
 const HEAVY=/^(Scania|Volvo|MAN|JCB|Cummins|Iveco|Fuso|Other)$/;
@@ -373,7 +373,7 @@ function go(){const r=route();if(r===cur&&!T1){syncModal();return}$("#mm").class
  const c=$("#curtain");c.className="in";
  T1=setTimeout(()=>{T1=0;cur=r;show(r);syncModal();c.className="out"},650);T2=setTimeout(()=>{c.className=""},1400)}
 try{history.scrollRestoration="manual"}catch(e){}
-applyLang();addEventListener("hashchange",go);go();addEventListener("load",setBar);
+try{applyLang();addEventListener("hashchange",go);go();addEventListener("load",setBar)}catch(err){if(window.console)console.error(err);window.__gsaFail&&window.__gsaFail()}
 
 /* intro sequence */
 (function(){const sp=$("#splash"),quick=matchMedia("(prefers-reduced-motion:reduce)").matches;let seen=false;
@@ -383,3 +383,6 @@ applyLang();addEventListener("hashchange",go);go();addEventListener("load",setBa
  setTimeout(()=>document.body.classList.add("ready"),quick?200:2500);
  setTimeout(()=>sp.classList.add("out"),quick?100:2400);
  setTimeout(()=>sp.remove(),quick?600:3800)})();
+
+/* Always release the intro animation lock, even if a browser throttles the animation. */
+setTimeout(()=>{if(!document.body.classList.contains('ready'))document.body.classList.add('ready')},4500);
